@@ -1,13 +1,11 @@
 import requests
 import sys
+from get_auth_params import *
+
+auth_params = add_auth_params()
 
 base_url = "https://api.trello.com/1/{}"
-board_id = input("Enter the long boards ID: ")
-
-auth_params = {
-    'key': input("Enter your key for trello api: "),
-    'token': input("Enter your token for trello api: ")
-}
+board_id = input("Enter the boards ID: ")
 
 def read():
     """Read all info from board"""
