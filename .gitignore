@@ -3,3 +3,6 @@
 
 # Ignore IDE specific files
 .idea/
+
+#Ignore __pycache__
+.__pycache__/
