@@ -5,16 +5,27 @@ from get_auth_params import *
 auth_params = add_auth_params()
 
 base_url = "https://api.trello.com/1/{}"
-board_id = input("Enter the boards ID: ")
+short_board_id = get_board_id()
+board_id = requests.get(base_url.format('boards/' + short_board_id), params=auth_params).json()["id"]
+
+tasks_list = []
 
 def read():
     """Read all info from board"""
+    
+    tasks_list.clear()
 
     # request data about all columns
     columns_list = requests.get(base_url.format('boards') + '/' + board_id + '/lists', params=auth_params).json()
     # for each column, making request for task data
     for column in columns_list:
         task_data = requests.get(base_url.format('lists') + '/' + column['id'] + '/cards', params=auth_params).json()
+        for task in task_data:
+            tasks_list.append(task["name"])
+
+    for column in columns_list:
+        task_data = requests.get(base_url.format('lists') + '/' + column['id'] + '/cards', params=auth_params).json()
+        # for task in task_data:
 
         # output format column name with number of tasks
         if len(task_data) == 0 or len(task_data) > 1:
@@ -27,11 +38,18 @@ def read():
             continue
         # Output format task, if tasks with name more than 1, then output with task id
         for task in task_data:
-            if check_duplicates(task['name']):
+            if check_duplicates_2(task['name']):
                 print('\t' + task['name'] + ', id: ' + task['id'])
             else:
                 print('\t' + task['name'])
 
+
+def check_duplicates_2(task_name):
+    if tasks_list.count(task_name) > 1:
+        return True
+    else:
+        return False
+        
 
 def check_column(column_name):
     """Check column"""
@@ -78,6 +96,7 @@ def delete_column(column_name):
 
 def create_task(task_name, column_name):
     """Create task with name task_name in column with name column_name"""
+    
     # if a column with "column_name" is found
     if check_column(column_name):
         # request data about all columns
@@ -183,9 +202,13 @@ if __name__ == "__main__":
         read()
     elif sys.argv[1] == 'create':
         create_task(sys.argv[2], sys.argv[3])
+        read()
     elif sys.argv[1] == 'create_column':
         create_column(sys.argv[2])
+        read()
     elif sys.argv[1] == 'delete_column':
         delete_column(sys.argv[2])
+        read()
     elif sys.argv[1] == 'move':
         move(sys.argv[2], sys.argv[3])
+        read()

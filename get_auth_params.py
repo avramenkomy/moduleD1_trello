@@ -1,5 +1,8 @@
 import configparser
 
+config = configparser.ConfigParser()
+config.read("auth_params.ini")
+
 def get_auth_params():
 
     key = input("Enter your key: ")
@@ -19,10 +22,6 @@ def get_auth_params():
 
 
 def add_auth_params():
-    
-
-    config = configparser.ConfigParser()
-    config.read("auth_params.ini")
 
     if (config.has_option("Trello", "key") and config.has_option("Trello", "token")) and (len(config["Trello"]["key"]) == 32 and len(config["Trello"]["token"]) == 64):
         print("auth params is available")
@@ -40,6 +39,19 @@ def add_auth_params():
         "key": str(config["Trello"]["key"]),
         "token": str(config["Trello"]["token"])
     }
+
+def get_board_id():
+    if config["Trello"]["board_id"]:
+        return config["Trello"]["board_id"]
+    else:
+        board_id = input("Enter the board ID: ")
+        config.set("Trello", "board_id", board_id)
+        with open('auth_params.ini', 'w') as configfile:
+                config.write(configfile)
+                print("board_id is available")
+
+        return config["Trello"]["board_id"]
+
 
 if __name__ == "__main__":
     add_auth_params()
